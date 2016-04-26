@@ -1,0 +1,19 @@
+{% load admin_urls %}
+{% if items %}
+<div class="form-row aligned">
+  <div class="row">
+    <div class="col-sm-3">
+      <label>{{ name }}</label>
+    </div>
+    <br>
+    <div class="col-sm-9">
+      <ul>
+        {% for item in items %}
+            <li><a href="{% url opts|admin_urlname:'show' item.pk %}">{{item}}</a></li>
+        {% endfor %}
+        </ul>
+    </div>
+  </div>
+</div>
+<hr>
+{% endif %}

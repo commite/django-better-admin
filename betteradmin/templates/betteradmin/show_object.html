@@ -1,0 +1,31 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_static admin_modify admin_urls %}
+
+{% block bodyclass %}{{ opts.app_label }}-{{ opts.object_name.lower }} show-object{% endblock %}
+
+{% block extrabreadcrumbs %}
+    <li>
+        <a href="{% url opts|admin_urlname:'changelist' %}">
+            {{ opts.verbose_name_plural|capfirst }}
+        </a>
+    </li>
+    <li><span>{{ original|truncatewords:"18" }}</span></li>
+{% endblock %}
+
+{% block content_title %}
+    <h2>{{ original|truncatewords:"18" }} </h2>
+{% endblock %}
+
+{% block submit_buttons_bottom %}
+<div class="submit-row">
+    {% if has_change_permission %}
+        <a href="{% url opts|admin_urlname:'change' original.pk %}" class="btn btn-success btn-block"> {% trans 'Edit' %}</a>
+    {% endif %}
+
+    {% if has_delete_permission %}
+        <p class="deletelink-box">
+            <a class=" btn btn-danger btn-block" href="{% url opts|admin_urlname:'delete' original.pk %}" class="deletelink">{% trans "Delete" %}</a>
+        </p>
+    {% endif%}
+</div>
+{% endblock %}

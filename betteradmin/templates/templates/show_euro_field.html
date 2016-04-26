@@ -1,0 +1,15 @@
+<div class="form-row aligned">
+  <div class="row">
+    <div class="col-sm-4">
+      <label>{{ name }}</label>
+    </div>
+    <div class="col-sm-8">
+      {% if value %}
+        <strong>{{value|floatformat:2}} €</strong>
+      {% else %}
+        <strong>0,00 €</strong>
+      {% endif %}
+    </div>
+  </div>
+</div>
+<hr>

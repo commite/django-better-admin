@@ -1,0 +1,13 @@
+{% if value %}
+<div class="form-row aligned">
+  <div class="row">
+    <div class="col-sm-4">
+      <label>{{ name }}</label>
+    </div>
+    <div class="col-sm-8">
+      <a href="/media/{{value}}"><strong>Download</strong></a>
+    </div>
+  </div>
+</div>
+<hr>
+{% endif %}
