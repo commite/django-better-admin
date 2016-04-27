@@ -33,7 +33,7 @@ class ShowModelAdminMixin(object):
     use_show_view = True
     use_show_view_log = False
 
-    show_object_template = 'betteradmin/show_object.html'
+    show_object_template = None
 
     """
         Override generic ChangeList to link to show views instead of change
@@ -108,13 +108,16 @@ class ShowModelAdminMixin(object):
         opts = self.model._meta
         app_label = opts.app_label
         app_name = self.admin_site.name
-        return [
+        return self.show_object_template or [
             "%s/%s/%s/show_object.html" % (app_name, app_label,
                                            opts.object_name.lower()),
             "%s/%s/show_object.html" % (app_name, app_label),
-            "%s/show_object.html" % app_name,
-            self.show_object_template,
-        ]
+            "%s/show_object.html" % app_name] + [
+                "betteradmin/%s/%s/show_object.html" % (
+                    app_label, opts.object_name.lower()),
+                "betteradmin/%s/show_object.html" % (app_label),
+                "betteradmin/show_object.html",
+            ]
 
     def show_view(self, request, object_id, form_url='', extra_context=None):
         model = self.model
