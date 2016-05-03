@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
 from django.contrib.admin import helpers
 from django.contrib.admin.templatetags.admin_urls import add_preserved_filters
 from django.contrib.admin.views.main import ChangeList
@@ -34,6 +33,7 @@ class ShowModelAdminMixin(object):
     use_show_view_log = False
 
     show_object_template = None
+    change_form_template = 'betteradmin/change_form.html'
 
     """
         Override generic ChangeList to link to show views instead of change
