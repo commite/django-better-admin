@@ -3,7 +3,7 @@ from distutils.core import setup
 
 # Dynamically calculate the version based on modeltranslation.VERSION.
 
-VERSION = (0, 0, 1, 'alpha', 1)
+VERSION = (0, 1, 2, 'alpha', 1)
 
 
 def get_version():

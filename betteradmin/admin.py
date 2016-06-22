@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
+from django import forms
 from django.contrib import admin
+from django.contrib.admin.templatetags.admin_static import static
 from django.contrib.admin import helpers
 from django.contrib.admin.templatetags.admin_urls import add_preserved_filters
 from django.contrib.admin.views.main import ChangeList
@@ -16,7 +19,10 @@ from django.utils.encoding import force_unicode, force_text
 from django.utils.html import escape
 from django.template.response import TemplateResponse
 from django.core.exceptions import FieldError
+from django.views.generic import RedirectView
 from django.forms.models import modelform_factory
+from django.conf import settings
+
 from functools import partial, update_wrapper
 from collections import OrderedDict
 
@@ -56,6 +62,11 @@ class ShowModelAdminMixin(object):
         from django.conf.urls import url
         urlpatterns = super(ShowModelAdminMixin, self).get_urls()
 
+        # Replace the redirect pattern to go to show instead of change
+        for pattern in urlpatterns:
+            if pattern.regex.pattern == '^(.+)/$':
+                urlpatterns.remove(pattern)
+
         def wrap(view):
             def wrapper(*args, **kwargs):
                 return self.admin_site.admin_view(view)(*args, **kwargs)
@@ -65,7 +76,12 @@ class ShowModelAdminMixin(object):
         info = self.model._meta.app_label, self.model._meta.model_name
         urlpatterns = [
             url(r'^(.+)/show/$', wrap(self.admin_site.admin_view(self.show_view)), name='%s_%s_show' % info),
-        ] + urlpatterns
+        ] + urlpatterns + [
+            url(r'^(.+)/$', wrap(RedirectView.as_view(
+                pattern_name='%s:%s_%s_show' % ((self.admin_site.name,) + info)
+            ))),
+        ]
+
         return urlpatterns
 
     def is_show_view(self, request):
@@ -153,6 +169,7 @@ class ShowModelAdminMixin(object):
             title=_(u'View {verbose_name}').format(
                 verbose_name=force_unicode(opts.verbose_name)),
             adminform=adminForm,
+            view_name='show',
             object_id=object_id,
             original=obj,
             is_popup=(IS_POPUP_VAR in request.POST or
