@@ -1,5 +1,5 @@
 {% extends "admin/base_site.html" %}
-{% load i18n admin_urls admin_static admin_modify %}
+{% load i18n admin_urls admin_static admin_modify betteradmin_tags %}
 
 {% block content_title %}<h2>{{ original|truncatewords:"18" }} </h2>{% endblock %}
 
@@ -48,7 +48,7 @@
 
 {% block field_sets %}
 {% for fieldset in adminform %}
-  {% include "admin/includes/fieldset.html" %}
+  {% include "betteradmin/includes/show_fieldset.html" %}
 {% endfor %}
 {% endblock %}
 
@@ -64,10 +64,28 @@
 
 {% block show_actions_bottom %}
 <div class="submit-row">
-    {# TODO Add rest of actions from model and do so on a templatetag#}
+
+    {% for show_action in show_actions %}
+        {% if show_action.is_before %}
+            {% render_show_action show_action request original %}
+        {% endif %}
+    {% endfor %}
+
     {% if has_change_permission %}
-        <a class="button" href="{% url opts|admin_urlname:'change' original.pk %}"> {% trans 'Change' %}</a>
+        <a class="button" href="{% url opts|admin_urlname:'change' original.pk %}"> {% trans 'Edit' %}</a>
     {% endif %}
+
+    {% for show_action in show_actions %}
+        {% if show_action.is_after %}
+            {% render_show_action show_action request original %}
+        {% endif %}
+    {% endfor %}
+
+    
+    {% if has_delete_permission %}
+        <a class="deletelink" href="{% url opts|admin_urlname:'delete' original.pk %}"> {% trans 'Delete' %}</a>
+    {% endif %}
+
 </div>
 {% endblock %}
 

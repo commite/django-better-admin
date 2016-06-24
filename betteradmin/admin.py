@@ -29,7 +29,46 @@ from collections import OrderedDict
 SHOW = 4
 
 
-class ShowModelAdminMixin(object):
+class ShowAction(object):
+    BEFORE = 'before'
+    AFTER = 'after'
+
+    url = None
+    label = None
+    classes = 'button'
+    location = AFTER
+
+    def get_url(self, request, obj):
+        return self.url
+
+    def get_label(self, request, obj):
+        return self.label
+
+    def get_classes(self, request, obj):
+        return self.classes
+
+    def is_before(self):
+        return self.location == ShowAction.BEFORE
+
+    def is_after(self):
+        return self.location == ShowAction.AFTER
+
+    def render(self, request, obj):
+        return u'<a class="{classes}" href="{url}">{label}</a>'.format(
+            classes=self.get_classes(request, obj),
+            url=self.get_url(request, obj),
+            label=self.get_label(request, obj))
+
+
+class ShowActionsMixin(object):
+
+    show_actions = []
+
+    def get_show_actions(self, request, obj):
+        return self.show_actions
+
+
+class ShowModelAdminMixin(ShowActionsMixin):
 
     """
         Visualization view for any admin.
@@ -164,8 +203,12 @@ class ShowModelAdminMixin(object):
         for inline_formset in inline_formsets:
             media = media + inline_formset.media
 
+        # Show Actions
+        show_actions = self.get_show_actions(request, obj)
+
         context = dict(
             self.admin_site.each_context(request),
+            show_actions=show_actions,
             title=_(u'View {verbose_name}').format(
                 verbose_name=force_unicode(opts.verbose_name)),
             adminform=adminForm,

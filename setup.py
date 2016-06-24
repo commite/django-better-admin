@@ -3,7 +3,7 @@ from distutils.core import setup
 
 # Dynamically calculate the version based on modeltranslation.VERSION.
 
-VERSION = (0, 1, 2, 'alpha', 1)
+VERSION = (0, 1, 3, 'alpha', 1)
 
 
 def get_version():
@@ -46,7 +46,7 @@ setup(
         Long Description
         '''),
     author='Commite',
-    author_email='peschler@commite.com',
+    author_email='hola@commite.co',
     url='https://github.com/commite/django-better-admin',
     packages=['betteradmin', ],
     package_data={'betteradmin': [
