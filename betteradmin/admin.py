@@ -186,14 +186,15 @@ class ShowModelAdminMixin(ShowActionsMixin):
             raise Http404(_('%(name)s object with primary key %(key)r does not exist.') % {
                 'name': force_text(opts.verbose_name), 'key': escape(object_id)})
 
-        ModelForm = self.get_show_form(request, obj)
+        ModelForm = self.get_form(request, obj)
         form = ModelForm(instance=obj)
 
+        all_fields = flatten_fieldsets(self.get_fieldsets(request, obj))
         adminForm = helpers.AdminForm(
             form,
             list(self.get_fieldsets(request, obj)),
             self.get_prepopulated_fields(request, obj),
-            readonly_fields=form.fields.keys(),  # All fields readonly
+            readonly_fields=all_fields,  # All fields readonly
             model_admin=self)
         media = self.media + adminForm.media
         opts = self.model._meta
@@ -245,6 +246,7 @@ class ShowModelAdminMixin(ShowActionsMixin):
             inline_admin_formsets.append(inline_admin_formset)
         return inline_admin_formsets
 
+    # DEPRECATED
     def get_show_form(self, request, obj=None, **kwargs):
         """
         Returns a Form class for use in the admin show view.

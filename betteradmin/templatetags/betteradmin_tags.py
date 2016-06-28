@@ -8,7 +8,7 @@ from django.db import models
 from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
-
+from django.core.exceptions import FieldDoesNotExist
 
 register = Library()
 
@@ -22,7 +22,9 @@ def render_show_action(show_action, request, original):
 def readonly_field(context, field):
     opts = context.get('opts', None)
     form = field.form
-    base_field = form.fields[field.field['name']]
+    base_field = field
+    if field.field['name'] in form.fields:
+        base_field = form.fields[field.field['name']]
     original = context.get('original', None)
 
     return {
@@ -32,6 +34,12 @@ def readonly_field(context, field):
         'field': field,
         'base_field': base_field,
     }
+
+
+@register.filter
+def is_db_field(field):
+    opts = field.model_admin.opts
+    return field.field['name'] in opts.get_all_field_names()
 
 
 @register.filter
@@ -55,6 +63,7 @@ def is_foreign_key(field):
     if isinstance(db_field, (models.ForeignKey,)):
         admin_site = field.model_admin.admin_site
         return admin_site.is_registered(db_field.related_model)
+
     return False
 
 
