@@ -67,16 +67,24 @@ def is_foreign_key(field):
     return False
 
 
+@register.filter
+def is_none(field, original):
+    field_value = getattr(original, field.field['name'], None)
+    return field_value is None
+
+
 @register.simple_tag
 def admin_show_url(original, field):
     admin_site = field.model_admin.admin_site.name
     fk_instance = getattr(original, field.field['name'])
+    if fk_instance:
+        content_type = ContentType \
+            .objects \
+            .get_for_model(fk_instance.__class__)
+        return reverse("%s:%s_%s_show" % (
+            admin_site,
+            content_type.app_label,
+            content_type.model),
+            args=(fk_instance.id,))
 
-    content_type = ContentType \
-        .objects \
-        .get_for_model(fk_instance.__class__)
-    return reverse("%s:%s_%s_show" % (
-        admin_site,
-        content_type.app_label,
-        content_type.model),
-        args=(fk_instance.id,))
+    return ''
