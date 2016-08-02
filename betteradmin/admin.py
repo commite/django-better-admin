@@ -35,6 +35,7 @@ class ShowAction(object):
 
     url = None
     label = None
+    target = None
     classes = 'button'
     location = AFTER
 
@@ -54,10 +55,15 @@ class ShowAction(object):
         return self.location == ShowAction.AFTER
 
     def render(self, request, obj):
-        return u'<a class="{classes}" href="{url}">{label}</a>'.format(
+        target = ''
+        if self.target is not None:
+            target = u'target="{target}"'.format(target=self.target)
+
+        return u'<a class="{classes}" {target} href="{url}">{label}</a>'.format(
             classes=self.get_classes(request, obj),
             url=self.get_url(request, obj),
-            label=self.get_label(request, obj))
+            label=self.get_label(request, obj),
+            target=target)
 
 
 class ShowActionsMixin(object):
@@ -73,6 +79,7 @@ class ShowModelAdminMixin(ShowActionsMixin):
     """
         Visualization view for any admin.
     """
+    site_name = 'betteradmin'
 
     use_show_view = True
     use_show_view_log = False
@@ -161,13 +168,13 @@ class ShowModelAdminMixin(ShowActionsMixin):
 
     def get_show_object_template(self):
         opts = self.model._meta
+        site_name = self.site_name or self.admin_site.name
         app_label = opts.app_label
-        app_name = self.admin_site.name
         return self.show_object_template or [
-            "%s/%s/%s/show_object.html" % (app_name, app_label,
+            "%s/%s/%s/show_object.html" % (site_name, app_label,
                                            opts.object_name.lower()),
-            "%s/%s/show_object.html" % (app_name, app_label),
-            "%s/show_object.html" % app_name] + [
+            "%s/%s/show_object.html" % (site_name, app_label),
+            "%s/show_object.html" % site_name] + [
                 "betteradmin/%s/%s/show_object.html" % (
                     app_label, opts.object_name.lower()),
                 "betteradmin/%s/show_object.html" % (app_label),
@@ -206,7 +213,7 @@ class ShowModelAdminMixin(ShowActionsMixin):
 
         # Show Actions
         show_actions = self.get_show_actions(request, obj)
-
+        view_on_site_url = self.get_view_on_site_url(obj)
         context = dict(
             self.admin_site.each_context(request),
             show_actions=show_actions,
@@ -226,7 +233,8 @@ class ShowModelAdminMixin(ShowActionsMixin):
             has_add_permission=self.has_add_permission(request),
             has_change_permission=self.has_change_permission(request, obj),
             has_delete_permission=self.has_delete_permission(request, obj),
-            has_absolute_url=hasattr(self.model, 'get_absolute_url'),
+            has_absolute_url=view_on_site_url is not None,
+            absolute_url=view_on_site_url,
             opts=opts,
         )
         context.update(extra_context or {})

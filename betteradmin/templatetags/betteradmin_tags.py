@@ -60,7 +60,7 @@ def is_url(field):
 def is_foreign_key(field):
     opts = field.model_admin.opts
     db_field = opts.get_field(field.field['name'])
-    if isinstance(db_field, (models.ForeignKey,)):
+    if isinstance(db_field, (models.ForeignKey, models.OneToOneRel)):
         admin_site = field.model_admin.admin_site
         return admin_site.is_registered(db_field.related_model)
 
